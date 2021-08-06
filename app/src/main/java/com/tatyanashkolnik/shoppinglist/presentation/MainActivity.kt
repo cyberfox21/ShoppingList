@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         ll_shopList = findViewById(R.id.ll_shopList)
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         viewModel.shopList.observe(this) {
-            shopListAdapter.shopList = it // проделывает вычисления в другом потоке
+            shopListAdapter.shopList = it // проделывает вычисления в главном потоке
             // и после устанавливает список в адаптер
         }
     }
