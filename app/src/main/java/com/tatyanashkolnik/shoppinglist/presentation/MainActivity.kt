@@ -3,9 +3,7 @@ package com.tatyanashkolnik.shoppinglist.presentation
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         ll_shopList = findViewById(R.id.ll_shopList)
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         viewModel.shopList.observe(this) {
-            shopListAdapter.submitList(it) // проделывает вычисления в другом потоке
+            shopListAdapter.shopList = it // проделывает вычисления в другом потоке
             // и после устанавливает список в адаптер
         }
     }
@@ -66,7 +64,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val item = shopListAdapter.currentList[viewHolder.adapterPosition]
+                val item = shopListAdapter.shopList[viewHolder.adapterPosition]
                 viewModel.deleteShopItem(item)
             }
         })

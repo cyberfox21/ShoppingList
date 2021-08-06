@@ -9,18 +9,14 @@ import androidx.recyclerview.widget.RecyclerView
 import com.tatyanashkolnik.shoppinglist.R
 import com.tatyanashkolnik.shoppinglist.domain.ShopItem
 
-class ShopListAdapter :
-    androidx.recyclerview.widget.ListAdapter<ShopItem, ShopListViewHolder>(
-        ShopItemDiffCallback()
-    ) {
-
-//    var shopList = listOf<ShopItem>()                                                               теперь не нужно хранить ссылку на list
-//        set(value) {                                                                                тк listAdapter сам работает со списом
-//            val diffCallback = ShopListDiffCallback(shopList, value)
-//            val diffResult = DiffUtil.calculateDiff(diffCallback)
-//            diffResult.dispatchUpdatesTo(this)
-//            field = value
-//        }
+class ShopListAdapter : RecyclerView.Adapter<ShopListViewHolder>(){
+    var shopList = listOf<ShopItem>()
+        set(value) {
+            val diffCallback = ShopListDiffCallback(shopList, value)
+            val diffResult = DiffUtil.calculateDiff(diffCallback)
+            diffResult.dispatchUpdatesTo(this)
+            field = value
+        }
 
     var onLongShopItemClickListener: OnLongShopItemClickListener? = null
     var onShopItemClickListener: OnShopItemClickListener? = null
@@ -28,11 +24,9 @@ class ShopListAdapter :
     interface OnLongShopItemClickListener {
         fun onLongShopItemClick(shopItem: ShopItem)
     }
-
     interface OnShopItemClickListener {
         fun onShopItemClick(shopItem: ShopItem)
     }
-
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ShopListViewHolder {
         val layout = when (viewType) {
@@ -47,7 +41,7 @@ class ShopListAdapter :
     }
 
     override fun onBindViewHolder(holder: ShopListViewHolder, position: Int) {
-        val shopItem = getItem(position)
+        val shopItem = shopList[position]
         holder.name.text = shopItem.name
         holder.count.text = shopItem.count.toString()
         holder.itemView.setOnLongClickListener {
@@ -58,17 +52,14 @@ class ShopListAdapter :
             onShopItemClickListener?.onShopItemClick(shopItem)
         }
     }
-
-
 //    override fun getItemViewType(position: Int): Int { /* !!! Если оставить в таком виде, то
 //        return super.getItemViewType(position)         ViewType ов будет столько же,
 //        return position                                сколько элементов в коллекции и ViewHolder
 //                                                        будет каждый раз создаваться заново,
 //                                                        тогда зачем нам RecyclerView? :) */
 //    }
-
     override fun getItemViewType(position: Int): Int {
-        val item = getItem(position)
+        val item = shopList[position]
         val condition = when (item.enabled) {
             true -> VIEW_TYPE_ENABLED
             false -> VIEW_TYPE_DISABLED
@@ -82,7 +73,7 @@ class ShopListAdapter :
         holder.count.text = ""
     }
 
-    override fun getItemCount(): Int = currentList.size // не нужен если ListAdapter
+    override fun getItemCount(): Int = shopList.size // не нужен если ListAdapter
 
     companion object {
         const val VIEW_TYPE_DISABLED = 0
