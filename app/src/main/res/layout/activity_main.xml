@@ -17,7 +17,6 @@
             android:orientation="vertical" />
     </ScrollView>
 
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_shop_list"
         android:layout_width="0dp"
