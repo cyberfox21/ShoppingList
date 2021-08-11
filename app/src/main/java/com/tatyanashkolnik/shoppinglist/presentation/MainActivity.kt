@@ -1,9 +1,11 @@
 package com.tatyanashkolnik.shoppinglist.presentation
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.lifecycle.ViewModelProvider
@@ -29,6 +31,11 @@ class MainActivity : AppCompatActivity() {
         viewModel.shopList.observe(this) {
             shopListAdapter.submitList(it) // проделывает вычисления в другом потоке
             // и после устанавливает список в адаптер
+        }
+        val buttonAddItem = findViewById<Button>(R.id.button_add_shop_item)
+        buttonAddItem.setOnClickListener {
+            val intent = ShopItemActivity.newIntentAddItem(this)
+            startActivity(intent)
         }
     }
 
@@ -81,6 +88,10 @@ class MainActivity : AppCompatActivity() {
                     "ShopItem: id ${shopItem.id} name ${shopItem.name} " +
                             "count ${shopItem.count} state ${shopItem.enabled}"
                 )
+                val intent = ShopItemActivity.newIntentEditItem(
+                    this@MainActivity, shopItem.id
+                )
+                startActivity(intent)
             }
         }
     }
