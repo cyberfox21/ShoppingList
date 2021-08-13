@@ -9,6 +9,7 @@ import com.tatyanashkolnik.shoppinglist.domain.AddShopItemUseCase
 import com.tatyanashkolnik.shoppinglist.domain.EditShopItemUseCase
 import com.tatyanashkolnik.shoppinglist.domain.GetShopItemUseCase
 import com.tatyanashkolnik.shoppinglist.domain.ShopItem
+import java.lang.Exception
 
 class ShopItemViewModel : ViewModel() {
 
@@ -74,10 +75,10 @@ class ShopItemViewModel : ViewModel() {
     }
 
     private fun parseCount(count: String?): Int {
-        val result = when {
-            count?.isDigitsOnly() == true -> count.toInt() ?: 0
-            count?.contains(" ") == true -> count.trim().toInt() ?: 0
-            else -> 0
+        val result = try{
+            count!!.toInt()
+        } catch(e: Exception){
+            0
         }
         return result
     }

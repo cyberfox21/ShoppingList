@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tatyanashkolnik.shoppinglist.R
 import com.tatyanashkolnik.shoppinglist.domain.ShopItem
 import com.tatyanashkolnik.shoppinglist.presentation.ShopListAdapter.Companion.MAX_POOL_SIZE
@@ -32,7 +33,7 @@ class MainActivity : AppCompatActivity() {
             shopListAdapter.submitList(it) // проделывает вычисления в другом потоке
             // и после устанавливает список в адаптер
         }
-        val buttonAddItem = findViewById<Button>(R.id.button_add_shop_item)
+        val buttonAddItem = findViewById<FloatingActionButton>(R.id.button_add_shop_item)
         buttonAddItem.setOnClickListener {
             val intent = ShopItemActivity.newIntentAddItem(this)
             startActivity(intent)
