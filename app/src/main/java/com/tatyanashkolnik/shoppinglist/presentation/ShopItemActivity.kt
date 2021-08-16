@@ -33,60 +33,64 @@ class ShopItemActivity : AppCompatActivity() {
 
 //        viewModel = ViewModelProvider(this)[ShopItemViewModel::class.java]
 //
-//        parseIntent() // init vars screenMode and shopItemId which help to launch activity mode
+        parseIntent() // init vars screenMode and shopItemId which help to launch activity mode
 //        initViews()
 //        addTextChangeListeners()
-//        launchRightMode()
+        launchRightMode()
 //        observeViewModel()
     }
 
-    private fun observeViewModel(){
-        viewModel.errorInputName.observe(this, {
-            val message = when(it){
-                true -> "Invalid name"
-                false -> null
-            }
-            tilName.error = message
-        })
-        viewModel.errorInputCount.observe(this, {
-            val message = when(it){
-                true -> "Invalid count"
-                false -> null
-            }
-            tilCount.error = message
-        })
-        viewModel.shouldCloseScreen.observe(this,{ it ->
-            finish()
-        })
-    }
+//    private fun observeViewModel(){
+//        viewModel.errorInputName.observe(this, {
+//            val message = when(it){
+//                true -> "Invalid name"
+//                false -> null
+//            }
+//            tilName.error = message
+//        })
+//        viewModel.errorInputCount.observe(this, {
+//            val message = when(it){
+//                true -> "Invalid count"
+//                false -> null
+//            }
+//            tilCount.error = message
+//        })
+//        viewModel.shouldCloseScreen.observe(this,{ it ->
+//            finish()
+//        })
+//    }
 
     private fun launchRightMode(){
-        when(screenMode){
-            MODE_EDIT -> launchEditMode()
-            MODE_ADD -> launchAddMode()
+        val fragment = when(screenMode){
+            MODE_EDIT -> ShopItemFragment.newInctanceEditItem(shopItemId)
+            MODE_ADD -> ShopItemFragment.newInctanceAddItem()
+            else -> throw RuntimeException("Unknown screen mode $screenMode")
         }
+        supportFragmentManager.beginTransaction()
+            .add(R.id.shop_item_container, fragment)
+            .commit()
     }
 
-    private fun addTextChangeListeners() {
-        etName.addTextChangedListener(object : TextWatcher{
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                viewModel.resetErrorInputName()
-            }
-
-            override fun afterTextChanged(s: Editable?) {}
-        })
-        etCount.addTextChangedListener(object : TextWatcher{
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                viewModel.resetErrorInputCount()
-            }
-
-            override fun afterTextChanged(s: Editable?) {}
-        })
-    }
+//    private fun addTextChangeListeners() {
+//        etName.addTextChangedListener(object : TextWatcher{
+//            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+//
+//            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+//                viewModel.resetErrorInputName()
+//            }
+//
+//            override fun afterTextChanged(s: Editable?) {}
+//        })
+//        etCount.addTextChangedListener(object : TextWatcher{
+//            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+//
+//            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+//                viewModel.resetErrorInputCount()
+//            }
+//
+//            override fun afterTextChanged(s: Editable?) {}
+//        })
+//    }
 
     private fun launchEditMode(){
         viewModel.getShopItem(shopItemId)
@@ -110,13 +114,13 @@ class ShopItemActivity : AppCompatActivity() {
         }
     }
 
-    private fun initViews() {
-        tilName = findViewById(R.id.til_name)
-        tilCount = findViewById(R.id.til_count)
-        etName = findViewById(R.id.et_name)
-        etCount = findViewById(R.id.et_count)
-        btnSave = findViewById(R.id.btn_save)
-    }
+//    private fun initViews() {
+//        tilName = findViewById(R.id.til_name)
+//        tilCount = findViewById(R.id.til_count)
+//        etName = findViewById(R.id.et_name)
+//        etCount = findViewById(R.id.et_count)
+//        btnSave = findViewById(R.id.btn_save)
+//    }
 
     private fun parseIntent() {
         if(!intent.hasExtra(EXTRA_SCREEN_MODE)){

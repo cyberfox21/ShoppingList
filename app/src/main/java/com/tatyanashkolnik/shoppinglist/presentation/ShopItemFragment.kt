@@ -63,6 +63,8 @@ class ShopItemFragment(
             tilCount.error = message
         })
         viewModel.shouldCloseScreen.observe(viewLifecycleOwner,{ it ->
+            activity?.onBackPressed()
+//            requireActivity().onBackPressed() // если уверены что activity не null (крэш возможен)
 //            finish()
         })
     }
@@ -141,6 +143,14 @@ class ShopItemFragment(
         private const val MODE_EDIT = "mode_edit"
         private const val MODE_ADD = "mode_add"
         private const val MODE_UNKNOWN = ""
+
+        fun newInctanceAddItem(): ShopItemFragment {
+            return ShopItemFragment(MODE_ADD)
+        }
+
+        fun newInctanceEditItem(shopItemId: Int): ShopItemFragment {
+            return ShopItemFragment(MODE_EDIT, shopItemId)
+        }
 
         fun newIntentAddItem(context: Context): Intent {
             val intent = Intent(context, ShopItemActivity::class.java)
