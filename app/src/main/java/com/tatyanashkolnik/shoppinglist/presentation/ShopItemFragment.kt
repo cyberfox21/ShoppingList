@@ -1,7 +1,5 @@
 package com.tatyanashkolnik.shoppinglist.presentation
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -16,10 +14,7 @@ import com.google.android.material.textfield.TextInputLayout
 import com.tatyanashkolnik.shoppinglist.R
 import com.tatyanashkolnik.shoppinglist.domain.ShopItem
 
-class ShopItemFragment(
-    private val screenMode: String = MODE_UNKNOWN,
-    private val shopItemId: Int = ShopItem.UNDEFINED_ID
-) : Fragment() {
+class ShopItemFragment : Fragment() {
 
     private lateinit var viewModel: ShopItemViewModel
 
@@ -29,7 +24,13 @@ class ShopItemFragment(
     private lateinit var etCount: EditText
     private lateinit var btnSave: Button
 
+    private var screenMode: String = MODE_UNKNOWN
+    private var shopItemId: Int = ShopItem.UNDEFINED_ID
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        parseParams() // init vars screenMode and shopItemId which help to launch fragment mode
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -40,7 +41,6 @@ class ShopItemFragment(
         super.onViewCreated(view, savedInstanceState)
         viewModel = ViewModelProvider(this)[ShopItemViewModel::class.java]
 
-        parseParams() // init vars screenMode and shopItemId which help to launch activity mode
         initViews(view)
         addTextChangeListeners()
         launchRightMode()
@@ -108,7 +108,6 @@ class ShopItemFragment(
             val count = etCount.text.toString()
             viewModel.editShopItem(name, count)
         }
-
     }
 
     private fun launchAddMode(){
@@ -128,41 +127,46 @@ class ShopItemFragment(
     }
 
     private fun parseParams() {
-        if(screenMode != MODE_EDIT && screenMode != MODE_ADD){
-            throw RuntimeException("Unknown screen mode")
+        val args = requireArguments()
+        if(!args.containsKey(SCREEN_MODE)){
+            throw java.lang.RuntimeException("Param screen mode is absent")
         }
-        if(screenMode == MODE_EDIT && shopItemId == ShopItem.UNDEFINED_ID){
-            throw RuntimeException("Param shop item id is absent")
+        val mode = args.getString(SCREEN_MODE)
+        if(mode != MODE_ADD && mode != MODE_EDIT){
+            throw java.lang.RuntimeException("Unknown screen mode $mode")
+        }
+        screenMode = mode
+        if(screenMode == MODE_EDIT){
+            if(!args.containsKey(SHOP_ITEM_ID)) {
+                throw java.lang.RuntimeException("Param shop item id is absent")
+            }
+            shopItemId = args.getInt(SHOP_ITEM_ID, ShopItem.UNDEFINED_ID)
         }
     }
 
     companion object{
 
-        private const val EXTRA_SCREEN_MODE = "extra_mode"
-        private const val EXTRA_SHOP_ITEM_ID = "extra_shop_item_id"
+        private const val SCREEN_MODE = "extra_mode"
+        private const val SHOP_ITEM_ID = "extra_shop_item_id"
         private const val MODE_EDIT = "mode_edit"
         private const val MODE_ADD = "mode_add"
         private const val MODE_UNKNOWN = ""
 
-        fun newInctanceAddItem(): ShopItemFragment {
-            return ShopItemFragment(MODE_ADD)
+        fun newInstanceAddItem(): ShopItemFragment {
+            return ShopItemFragment().apply{
+                arguments = Bundle().apply {
+                    putString(SCREEN_MODE, MODE_ADD)
+                }
+            }
         }
 
-        fun newInctanceEditItem(shopItemId: Int): ShopItemFragment {
-            return ShopItemFragment(MODE_EDIT, shopItemId)
-        }
-
-        fun newIntentAddItem(context: Context): Intent {
-            val intent = Intent(context, ShopItemActivity::class.java)
-            intent.putExtra(EXTRA_SCREEN_MODE, MODE_ADD)
-            return intent
-        }
-
-        fun newIntentEditItem(context: Context, shopItemId: Int): Intent { // параметр shopItemId
-            val intent = Intent(context, ShopItemActivity::class.java) // обязательный, если нужно
-            intent.putExtra(EXTRA_SCREEN_MODE, MODE_EDIT) // запустить экран в режиме редактирования
-            intent.putExtra(EXTRA_SHOP_ITEM_ID, shopItemId)
-            return intent
+        fun newInstanceEditItem(shopItemId: Int): ShopItemFragment {
+            return ShopItemFragment().apply {
+                arguments = Bundle().apply {
+                    putString(SCREEN_MODE, MODE_EDIT)
+                    putInt(SHOP_ITEM_ID, shopItemId)
+                }
+            }
         }
 
     }
