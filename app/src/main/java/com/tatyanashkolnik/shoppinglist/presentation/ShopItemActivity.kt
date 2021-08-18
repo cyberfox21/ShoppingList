@@ -8,6 +8,7 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Button
 import android.widget.EditText
+import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.textfield.TextInputLayout
 import com.tatyanashkolnik.shoppinglist.R
@@ -24,6 +25,8 @@ class ShopItemActivity : AppCompatActivity() {
 //    private lateinit var etCount: EditText
 //    private lateinit var btnSave: Button
 
+    private var shopItemContainer : FragmentContainerView? = null
+
     private var screenMode = MODE_UNKNOWN
     private var shopItemId = ShopItem.UNDEFINED_ID
 
@@ -32,17 +35,23 @@ class ShopItemActivity : AppCompatActivity() {
         setContentView(R.layout.activity_shop_item)
 
         parseIntent() // init vars screenMode and shopItemId which help to launch activity mode
-        launchRightMode()
+        if(savedInstanceState == null) {
+            launchRightMode()
+        }// так как после изм конфиг фрагмент сначала пересоздаётся системой,
+        // а потом ещё и мы сами его устанавливаем, то onCreate во фрагменте вызывается 2 раза,
+        // сделаем создание только при первом запуске
     }
 
     private fun launchRightMode(){
+
         val fragment = when(screenMode){
             MODE_EDIT -> ShopItemFragment.newInstanceEditItem(shopItemId)
             MODE_ADD -> ShopItemFragment.newInstanceAddItem()
             else -> throw RuntimeException("Unknown screen mode $screenMode")
         }
+
         supportFragmentManager.beginTransaction()
-            .add(R.id.shop_item_container, fragment)
+            .replace(R.id.shop_item_container, fragment)
             .commit()
     }
 
