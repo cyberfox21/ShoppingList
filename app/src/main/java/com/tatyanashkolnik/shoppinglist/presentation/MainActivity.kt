@@ -1,13 +1,9 @@
 package com.tatyanashkolnik.shoppinglist.presentation
 
-import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.widget.Button
 import android.widget.LinearLayout
-import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.ViewModelProvider
@@ -18,15 +14,14 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tatyanashkolnik.shoppinglist.R
 import com.tatyanashkolnik.shoppinglist.domain.ShopItem
 import com.tatyanashkolnik.shoppinglist.presentation.ShopListAdapter.Companion.MAX_POOL_SIZE
-import java.lang.RuntimeException
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedListener {
 
     private lateinit var viewModel: MainViewModel
     private lateinit var ll_shopList: LinearLayout
     private lateinit var shopListAdapter: ShopListAdapter
 
-    private var shopItemContainer : FragmentContainerView? = null
+    private var shopItemContainer: FragmentContainerView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +34,8 @@ class MainActivity : AppCompatActivity() {
             shopListAdapter.submitList(it) // проделывает вычисления в другом потоке
             // и после устанавливает список в адаптер
         }
-        val buttonAddItem = findViewById<FloatingActionButton>(R.id.button_add_shop_item)
+        val buttonAddItem =
+            findViewById<FloatingActionButton>(R.id.button_add_shop_item)
         buttonAddItem.setOnClickListener {
             if (isOnePaneMode()) {
                 val intent = ShopItemActivity.newIntentAddItem(this)
@@ -50,17 +46,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun launchFragment(fragment: Fragment){
+    private fun launchFragment(fragment: Fragment) {
         supportFragmentManager.popBackStack()
         supportFragmentManager.beginTransaction()
             .replace(R.id.shop_item_container, fragment)
             .addToBackStack(null) // имя не принципиально | нужно чтобы найти фрагмент
-                                // добавляет в стек - последовательность нажимания на кнопку назад
-                                // чтобы удалить с экрана фрагмент
+            // добавляет в стек - последовательность нажимания на кнопку назад
+            // чтобы удалить с экрана фрагмент
             .commit()
     }
 
-    private fun isOnePaneMode() : Boolean{ // режим в одну колонку (вертикальный макет)
+    private fun isOnePaneMode(): Boolean { // режим в одну колонку (вертикальный макет)
         return shopItemContainer == null
     }
 
@@ -108,7 +104,7 @@ class MainActivity : AppCompatActivity() {
     private fun setupClickListener() {
         shopListAdapter.onShopItemClickListener = object : ShopListAdapter.OnShopItemClickListener {
             override fun onShopItemClick(shopItem: ShopItem) {
-                if(isOnePaneMode()) {
+                if (isOnePaneMode()) {
                     Log.d(
                         "CHECKER",
                         "ShopItem: id ${shopItem.id} name ${shopItem.name} " +
@@ -132,6 +128,10 @@ class MainActivity : AppCompatActivity() {
                     viewModel.changeEnableState(shopItem)
                 }
             }
+    }
+
+    override fun onEditingFinished() {
+       supportFragmentManager.popBackStack()
     }
 
 //    private fun showList(shopList: List<ShopItem>) {      // для реализации через linear layout

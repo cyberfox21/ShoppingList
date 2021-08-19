@@ -1,5 +1,6 @@
 package com.tatyanashkolnik.shoppinglist.presentation
 
+import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -13,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.textfield.TextInputLayout
 import com.tatyanashkolnik.shoppinglist.R
 import com.tatyanashkolnik.shoppinglist.domain.ShopItem
+import java.lang.RuntimeException
 
 class ShopItemFragment : Fragment() {
 
@@ -26,6 +28,24 @@ class ShopItemFragment : Fragment() {
 
     private var screenMode: String = MODE_UNKNOWN
     private var shopItemId: Int = ShopItem.UNDEFINED_ID
+
+    // устанавливать значение извне нельзя, так как при пересоздании все переменные сбрасываются
+    private lateinit var onEditingFinishedListener : OnEditingFinishedListener // private lateinit
+    // чтобы точно было видно, что необходимо реализовать интерефейс иначе выбрасываем исключение
+
+    interface OnEditingFinishedListener{
+        fun onEditingFinished()
+    }
+
+    override fun onAttach(context: Context) { // context - это и есть наша активити
+        super.onAttach(context)
+        if(context is OnEditingFinishedListener){// проверяем, реализует ли activity нужный listener
+            onEditingFinishedListener = context
+        } else{
+            // если реализация интерфейса необходима, а его отсутствие приводит к багам
+            throw RuntimeException("Activity mast implement OnEditingFinishedListener")
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

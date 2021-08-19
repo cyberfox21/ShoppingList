@@ -2,20 +2,12 @@ package com.tatyanashkolnik.shoppinglist.presentation
 
 import android.content.Context
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.widget.Button
-import android.widget.EditText
-import androidx.fragment.app.FragmentContainerView
-import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.textfield.TextInputLayout
+import androidx.appcompat.app.AppCompatActivity
 import com.tatyanashkolnik.shoppinglist.R
 import com.tatyanashkolnik.shoppinglist.domain.ShopItem
-import java.lang.RuntimeException
 
-class ShopItemActivity : AppCompatActivity() {
+class ShopItemActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedListener {
 
 //    private lateinit var viewModel: ShopItemViewModel
 
@@ -24,8 +16,6 @@ class ShopItemActivity : AppCompatActivity() {
 //    private lateinit var etName: EditText
 //    private lateinit var etCount: EditText
 //    private lateinit var btnSave: Button
-
-    private var shopItemContainer : FragmentContainerView? = null
 
     private var screenMode = MODE_UNKNOWN
     private var shopItemId = ShopItem.UNDEFINED_ID
@@ -70,6 +60,10 @@ class ShopItemActivity : AppCompatActivity() {
             }
             shopItemId = intent.getIntExtra(EXTRA_SHOP_ITEM_ID, ShopItem.UNDEFINED_ID)
         }
+    }
+
+    override fun onEditingFinished() {
+        finish()
     }
 
     companion object{
