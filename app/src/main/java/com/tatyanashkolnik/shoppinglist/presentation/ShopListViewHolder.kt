@@ -1,11 +1,9 @@
 package com.tatyanashkolnik.shoppinglist.presentation
 
-import android.view.View
-import android.widget.TextView
+import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
-import com.tatyanashkolnik.shoppinglist.R
 
-class ShopListViewHolder(view: View) : RecyclerView.ViewHolder(view) {
-    val name = view.findViewById<TextView>(R.id.tv_name)
-    val count = view.findViewById<TextView>(R.id.tv_count)
+class ShopListViewHolder(val binding: ViewDataBinding) : RecyclerView.ViewHolder(binding.root) {
+    // ViewDataBinding так как мы не знаем точно, какой layout будет у элемента: активный или нет
+    // ViewDataBinding является родительским классом для всех dataBinding объектов
 }

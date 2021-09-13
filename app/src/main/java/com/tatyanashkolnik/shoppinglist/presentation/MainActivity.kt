@@ -2,16 +2,12 @@ package com.tatyanashkolnik.shoppinglist.presentation
 
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tatyanashkolnik.shoppinglist.R
 import com.tatyanashkolnik.shoppinglist.databinding.ActivityMainBinding
 import com.tatyanashkolnik.shoppinglist.domain.ShopItem
@@ -128,6 +124,6 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedList
     }
 
     override fun onEditingFinished() {
-       supportFragmentManager.popBackStack()
+        supportFragmentManager.popBackStack()
     }
 }
