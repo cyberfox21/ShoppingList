@@ -2,6 +2,7 @@ package com.tatyanashkolnik.shoppinglist.presentation
 
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -12,31 +13,28 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.tatyanashkolnik.shoppinglist.R
+import com.tatyanashkolnik.shoppinglist.databinding.ActivityMainBinding
 import com.tatyanashkolnik.shoppinglist.domain.ShopItem
 import com.tatyanashkolnik.shoppinglist.presentation.ShopListAdapter.Companion.MAX_POOL_SIZE
 
 class MainActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedListener {
 
-    private lateinit var viewModel: MainViewModel
-    private lateinit var ll_shopList: LinearLayout
-    private lateinit var shopListAdapter: ShopListAdapter
+    private lateinit var binding: ActivityMainBinding
 
-    private var shopItemContainer: FragmentContainerView? = null
+    private lateinit var viewModel: MainViewModel
+    private lateinit var shopListAdapter: ShopListAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        shopItemContainer = findViewById(R.id.shop_item_container)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         setupRecyclerView()
-        ll_shopList = findViewById(R.id.ll_shopList)
         viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
         viewModel.shopList.observe(this) {
             shopListAdapter.submitList(it) // проделывает вычисления в другом потоке
             // и после устанавливает список в адаптер
         }
-        val buttonAddItem =
-            findViewById<FloatingActionButton>(R.id.button_add_shop_item)
-        buttonAddItem.setOnClickListener {
+        binding.buttonAddShopItem.setOnClickListener {
             if (isOnePaneMode()) {
                 val intent = ShopItemActivity.newIntentAddItem(this)
                 startActivity(intent)
@@ -57,13 +55,12 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedList
     }
 
     private fun isOnePaneMode(): Boolean { // режим в одну колонку (вертикальный макет)
-        return shopItemContainer == null
+        return binding.shopItemContainer == null
     }
 
     private fun setupRecyclerView() {
-        val rv = findViewById<RecyclerView>(R.id.rv_shop_list)
         shopListAdapter = ShopListAdapter()
-        with(rv) {
+        with(binding.rvShopList) {
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = shopListAdapter
             recycledViewPool.setMaxRecycledViews(
@@ -77,10 +74,10 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedList
         }
         setupLongClickListener()
         setupClickListener()
-        setupSwipeListener(rv)
+        setupSwipeListener()
     }
 
-    private fun setupSwipeListener(rv: RecyclerView) {
+    private fun setupSwipeListener() {
         val itemTouchHelper = ItemTouchHelper(object :
             ItemTouchHelper.SimpleCallback(
                 0,
@@ -98,7 +95,7 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedList
                 viewModel.deleteShopItem(item)
             }
         })
-        itemTouchHelper.attachToRecyclerView(rv)
+        itemTouchHelper.attachToRecyclerView(binding.rvShopList)
     }
 
     private fun setupClickListener() {
@@ -133,24 +130,4 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedList
     override fun onEditingFinished() {
        supportFragmentManager.popBackStack()
     }
-
-//    private fun showList(shopList: List<ShopItem>) {      // для реализации через linear layout
-//        ll_shopList.removeAllViews()
-//        for (shopItem in shopList) {
-//            val id: Int = when (shopItem.enabled) {
-//                true -> R.layout.item_shop_enabled
-//                false -> R.layout.item_shop_disabled
-//            }
-//            val view = LayoutInflater.from(this).inflate(id, ll_shopList, false)
-//            val name = view.findViewById<TextView>(R.id.tv_name)
-//            val count = view.findViewById<TextView>(R.id.tv_count)
-//            name.text = shopItem.name
-//            count.text = shopItem.count.toString()
-//            view.setOnLongClickListener {
-//                viewModel.changeEnableState(shopItem)
-//                true
-//            }
-//            ll_shopList.addView(view)
-//        }
-//    }
 }

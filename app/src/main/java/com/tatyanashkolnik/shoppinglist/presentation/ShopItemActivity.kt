@@ -9,14 +9,6 @@ import com.tatyanashkolnik.shoppinglist.domain.ShopItem
 
 class ShopItemActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedListener {
 
-//    private lateinit var viewModel: ShopItemViewModel
-
-//    private lateinit var tilName: TextInputLayout
-//    private lateinit var tilCount: TextInputLayout
-//    private lateinit var etName: EditText
-//    private lateinit var etCount: EditText
-//    private lateinit var btnSave: Button
-
     private var screenMode = MODE_UNKNOWN
     private var shopItemId = ShopItem.UNDEFINED_ID
 
@@ -67,7 +59,6 @@ class ShopItemActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinished
     }
 
     companion object{
-
         private const val EXTRA_SCREEN_MODE = "extra_mode"
         private const val EXTRA_SHOP_ITEM_ID = "extra_shop_item_id"
         private const val MODE_EDIT = "mode_edit"
