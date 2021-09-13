@@ -1,26 +1,18 @@
 package com.tatyanashkolnik.shoppinglist.presentation
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.RecyclerView
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import com.tatyanashkolnik.shoppinglist.R
+import com.tatyanashkolnik.shoppinglist.databinding.ItemShopDisabledBinding
+import com.tatyanashkolnik.shoppinglist.databinding.ItemShopEnabledBinding
 import com.tatyanashkolnik.shoppinglist.domain.ShopItem
 
 class ShopListAdapter :
     androidx.recyclerview.widget.ListAdapter<ShopItem, ShopListViewHolder>(
         ShopItemDiffCallback()
     ) {
-
-//    var shopList = listOf<ShopItem>()                                                               теперь не нужно хранить ссылку на list
-//        set(value) {                                                                                тк listAdapter сам работает со списом
-//            val diffCallback = ShopListDiffCallback(shopList, value)
-//            val diffResult = DiffUtil.calculateDiff(diffCallback)
-//            diffResult.dispatchUpdatesTo(this)
-//            field = value
-//        }
 
     var onLongShopItemClickListener: OnLongShopItemClickListener? = null
     var onShopItemClickListener: OnShopItemClickListener? = null
@@ -40,32 +32,37 @@ class ShopListAdapter :
             VIEW_TYPE_DISABLED -> R.layout.item_shop_disabled
             else -> throw RuntimeException("Unknown viewtype $viewType")
         }
-
-        return ShopListViewHolder(
-            LayoutInflater.from(parent.context).inflate(layout, parent, false)
+        val binding = DataBindingUtil.inflate<ViewDataBinding>(
+            LayoutInflater.from(parent.context),
+            layout,
+            parent,
+            false
         )
+        return ShopListViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ShopListViewHolder, position: Int) {
         val shopItem = getItem(position)
-        holder.name.text = shopItem.name
-        holder.count.text = shopItem.count.toString()
-        holder.itemView.setOnLongClickListener {
+        val binding = holder.binding
+
+        when(binding){
+            is ItemShopEnabledBinding -> {
+                binding.tvName.text = shopItem.name
+                binding.tvCount.text = shopItem.count.toString()
+            }
+            is ItemShopDisabledBinding -> {
+                binding.tvName.text = shopItem.name
+                binding.tvCount.text = shopItem.count.toString()
+            }
+        }
+        binding.root.setOnLongClickListener {
             onLongShopItemClickListener?.onLongShopItemClick(shopItem)
             true
         }
-        holder.itemView.setOnClickListener {
+        binding.root.setOnClickListener {
             onShopItemClickListener?.onShopItemClick(shopItem)
         }
     }
-
-
-//    override fun getItemViewType(position: Int): Int { /* !!! Если оставить в таком виде, то
-//        return super.getItemViewType(position)         ViewType ов будет столько же,
-//        return position                                сколько элементов в коллекции и ViewHolder
-//                                                        будет каждый раз создаваться заново,
-//                                                        тогда зачем нам RecyclerView? :) */
-//    }
 
     override fun getItemViewType(position: Int): Int {
         val item = getItem(position)
@@ -74,12 +71,6 @@ class ShopListAdapter :
             false -> VIEW_TYPE_DISABLED
         }
         return condition
-    }
-
-    override fun onViewRecycled(holder: ShopListViewHolder) { // тоже не нужен, так как 100 проц
-        super.onViewRecycled(holder)                          // устанавливаем новое значение
-        holder.name.text = ""
-        holder.count.text = ""
     }
 
     override fun getItemCount(): Int = currentList.size // не нужен если ListAdapter
