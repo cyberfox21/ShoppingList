@@ -55,8 +55,8 @@ class MainActivity : AppCompatActivity(), ShopItemFragment.OnEditingFinishedList
     }
 
     private fun setupRecyclerView() {
-        shopListAdapter = ShopListAdapter()
         with(binding.rvShopList) {
+            shopListAdapter = ShopListAdapter()
             layoutManager = LinearLayoutManager(this@MainActivity)
             adapter = shopListAdapter
             recycledViewPool.setMaxRecycledViews(

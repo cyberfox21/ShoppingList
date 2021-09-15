@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout>
 
+    <data>
+        <variable
+            name="viewModel"
+            type="com.tatyanashkolnik.shoppinglist.presentation.ShopItemViewModel" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
@@ -17,14 +23,19 @@
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline2"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_chainStyle="packed">
+            app:layout_constraintVertical_chainStyle="packed"
+            app:setTilError="@{viewModel.errorInputName}">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_name"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Name"
-                android:inputType="textCapWords" />
+                android:inputType="textCapWords"
+                android:text="@{viewModel.shopItem.name}"
+                app:resetError="@{() -> viewModel.resetErrorInputName()}"/>
+
+                <!--  передаём функцию, которую хотим вызвать у viewModel -->
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -34,14 +45,17 @@
             app:layout_constraintBottom_toTopOf="@+id/btn_save"
             app:layout_constraintEnd_toStartOf="@+id/guideline3"
             app:layout_constraintStart_toStartOf="@+id/guideline2"
-            app:layout_constraintTop_toBottomOf="@+id/til_name">
+            app:layout_constraintTop_toBottomOf="@+id/til_name"
+            app:setTilError="@{viewModel.errorInputCount}">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_count"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Count"
-                android:inputType="number" />
+                android:text="@{String.valueOf(viewModel.shopItem.count)}"
+                android:inputType="number"
+                resetError="@{() -> viewModel.resetErrorInputCount()}"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <Button
