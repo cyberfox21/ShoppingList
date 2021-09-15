@@ -12,7 +12,9 @@ object ShopListRepositoryImpl : ShopListRepository {
     private var autoIncrementedId = 0
 
     private val shopListLD = MutableLiveData<List<ShopItem>>()
-    private val shopList = sortedSetOf(comparator = Comparator<ShopItem> { o1, o2 -> (o1.id).compareTo(o2.id)})
+    private val shopList = sortedSetOf(
+        comparator = Comparator<ShopItem> { o1, o2 -> (o1.id).compareTo(o2.id)}
+    )
 
     init {
         for( i in 0 until 25){

@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Shopping List</string>
     <string name="add_shop_item_content_description">Add new shop item</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="invalid_count">Invalid count</string>
+    <string name="invalid_name">Invalid name</string>
 </resources>

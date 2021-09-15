@@ -1,6 +1,5 @@
 package com.tatyanashkolnik.shoppinglist.presentation
 
-import androidx.core.text.isDigitsOnly
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,7 +8,6 @@ import com.tatyanashkolnik.shoppinglist.domain.AddShopItemUseCase
 import com.tatyanashkolnik.shoppinglist.domain.EditShopItemUseCase
 import com.tatyanashkolnik.shoppinglist.domain.GetShopItemUseCase
 import com.tatyanashkolnik.shoppinglist.domain.ShopItem
-import java.lang.Exception
 
 class ShopItemViewModel : ViewModel() {
 
@@ -20,14 +18,16 @@ class ShopItemViewModel : ViewModel() {
     private val getShopItemUseCase = GetShopItemUseCase(repository)
 
     private val _shouldCloseScreen = MutableLiveData<Unit>() // тип Unit обозначает то, что нам
-                                           // не важно какой объект мы устанавливаем в LiveData,
-                                           // важно лишь то, что будет оповещение(из-за изменения)
-    val shouldCloseScreen : LiveData<Unit>
-    get() = _shouldCloseScreen
+
+    // не важно какой объект мы устанавливаем в LiveData,
+    // важно лишь то, что будет оповещение(из-за изменения)
+    val shouldCloseScreen: LiveData<Unit>
+        get() = _shouldCloseScreen
 
     // true -> показываем юзеру ошибку | false -> всё ок
     // private _ чтобы устанавливать значения от сюда, из ViewModel
     private val _errorInputName = MutableLiveData<Boolean>()
+
     // публичная чтобы получить в Activity
     val errorInputName: LiveData<Boolean> // у типа LiveData нельзя устанавливать значение
         get() = _errorInputName// переопр getter чтобы возвращал значение приватной переменной
@@ -37,7 +37,7 @@ class ShopItemViewModel : ViewModel() {
         get() = _errorInputCount
 
     private val _shopItem = MutableLiveData<ShopItem>()
-    val shopItem : LiveData<ShopItem>
+    val shopItem: LiveData<ShopItem>
         get() = _shopItem
 
     fun getShopItem(shopItemId: Int) {
@@ -75,9 +75,9 @@ class ShopItemViewModel : ViewModel() {
     }
 
     private fun parseCount(count: String?): Int {
-        val result = try{
+        val result = try {
             count!!.toInt()
-        } catch(e: Exception){
+        } catch (e: Exception) {
             0
         }
         return result
@@ -104,8 +104,8 @@ class ShopItemViewModel : ViewModel() {
         _errorInputCount.value = false
     }
 
-    private fun finishWork(){
+    private fun finishWork() {
         _shouldCloseScreen.value = Unit // сам объект, который прилетит в observer,
-                                        // в активити никак использоваться не будет
+        // в активити никак использоваться не будет
     }
 }
