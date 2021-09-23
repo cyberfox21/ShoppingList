@@ -27,7 +27,10 @@ abstract class AppDatabase : RoomDatabase() {
                     application,
                     AppDatabase::class.java,
                     DB_NAME
-                ).build()
+                )
+                    .allowMainThreadQueries() // так делать низя, это просто на время
+                    // разрешает делать запросы к БД на главном потоке
+                    .build()
                 INSTANCE = db
                 return db
             }

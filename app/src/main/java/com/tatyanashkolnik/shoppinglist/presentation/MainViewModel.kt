@@ -1,15 +1,16 @@
 package com.tatyanashkolnik.shoppinglist.presentation
 
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import com.tatyanashkolnik.shoppinglist.data.ShopListRepositoryImpl
 import com.tatyanashkolnik.shoppinglist.domain.DeleteShopItemUseCase
 import com.tatyanashkolnik.shoppinglist.domain.EditShopItemUseCase
 import com.tatyanashkolnik.shoppinglist.domain.GetShopListUseCase
 import com.tatyanashkolnik.shoppinglist.domain.ShopItem
 
-class MainViewModel : ViewModel() {
+class MainViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = ShopListRepositoryImpl
+    private val repository = ShopListRepositoryImpl(application)
 
     private val getShopListUseCase = GetShopListUseCase(repository)
     private val deleteShopItemUseCase = DeleteShopItemUseCase(repository)
