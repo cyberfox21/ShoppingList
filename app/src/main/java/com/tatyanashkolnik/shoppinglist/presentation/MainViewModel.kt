@@ -2,6 +2,7 @@ package com.tatyanashkolnik.shoppinglist.presentation
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.tatyanashkolnik.shoppinglist.data.ShopListRepositoryImpl
 import com.tatyanashkolnik.shoppinglist.domain.DeleteShopItemUseCase
 import com.tatyanashkolnik.shoppinglist.domain.EditShopItemUseCase
@@ -24,24 +25,27 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     // Так как в Room реализованы suspend функции, которые не блокиуют поток, нам нет смысла
     // во ViewModel использовать Dispatchers.IO, поэтому просто будем использовать корутины на Main thread
-    val scope = CoroutineScope(Dispatchers.Main) // Не можем взять LifecycleScope как в активити
+//    val scope = CoroutineScope(Dispatchers.Main) // Не можем взять LifecycleScope как в активити
+
+    // теперь используем viewModelScope он работает в Main thread и сам очищается в onCleared()
 
 
     fun deleteShopItem(shopItem: ShopItem) {
-        scope.launch {
+        viewModelScope.launch {
             deleteShopItemUseCase.deleteShopItem(shopItem)
         }
     }
 
     fun changeEnableState(shopItem: ShopItem) {
-        scope.launch {
+        viewModelScope.launch {
             val newItem = shopItem.copy(enabled = !shopItem.enabled)
             editShopItemUseCase.editShopItem(newItem)
         }
     }
 
-    override fun onCleared() {
-        super.onCleared()
-        scope.cancel()
-    }
+// теперь используем viewModelScope он работает в Main thread и сам очищается в onCleared()
+//    override fun onCleared() {
+//        super.onCleared()
+//        scope.cancel()
+//    }
 }

@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.tatyanashkolnik.shoppinglist.data.ShopListRepositoryImpl
 import com.tatyanashkolnik.shoppinglist.domain.AddShopItemUseCase
 import com.tatyanashkolnik.shoppinglist.domain.EditShopItemUseCase
@@ -47,10 +48,12 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
 
     // Так как в Room реализованы suspend функции, которые не блокиуют поток, нам нет смысла
     // во ViewModel использовать Dispatchers.IO, поэтому просто будем использовать корутины на Main thread
-    val scope = CoroutineScope(Dispatchers.Main)
+//    val scope = CoroutineScope(Dispatchers.Main)
+
+    // теперь используем viewModelScope он работает в Main thread и сам очищается в onCleared()
 
     fun getShopItem(shopItemId: Int) {
-        scope.launch {
+        viewModelScope.launch {
             val item = getShopItemUseCase.getShopItem(shopItemId)
             _shopItem.value = item!!
         }
@@ -61,7 +64,7 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
         val count = parseCount(inputCount)
         val fieldsValid = validateInput(name, count)
         if (fieldsValid) {
-            scope.launch {
+            viewModelScope.launch {
                 val shopItem = ShopItem(name, count, true)
                 addShopItemUseCase.addShopItem(shopItem)
                 finishWork()
@@ -75,7 +78,7 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
         val fieldsValid = validateInput(name, count)
         if (fieldsValid) {
             _shopItem.value?.let {
-                scope.launch {
+                viewModelScope.launch {
                     val item = it.copy(name = name, count = count) // копируем старый объект,
                     // чтобы сохранить его id и состояние enabled, но изменяем отредактированные поля
                     editShopItemUseCase.editShopItem(item)
@@ -124,8 +127,10 @@ class ShopItemViewModel(application: Application) : AndroidViewModel(application
         // в активити никак использоваться не будет
     }
 
-    override fun onCleared() { // функция, которая вызывается при смерти ViewModel
-        super.onCleared()
-        scope.cancel() // отменяем scope
-    }
+    // теперь используем viewModelScope он работает в Main thread и сам очищается в onCleared()
+
+//    override fun onCleared() { // функция, которая вызывается при смерти ViewModel
+//        super.onCleared()
+//        scope.cancel() // отменяем scope
+//    }
 }
