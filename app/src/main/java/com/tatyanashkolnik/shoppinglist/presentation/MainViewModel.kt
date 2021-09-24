@@ -7,6 +7,10 @@ import com.tatyanashkolnik.shoppinglist.domain.DeleteShopItemUseCase
 import com.tatyanashkolnik.shoppinglist.domain.EditShopItemUseCase
 import com.tatyanashkolnik.shoppinglist.domain.GetShopListUseCase
 import com.tatyanashkolnik.shoppinglist.domain.ShopItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -18,14 +22,26 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     val shopList = getShopListUseCase.getShopList()
 
+    // Так как в Room реализованы suspend функции, которые не блокиуют поток, нам нет смысла
+    // во ViewModel использовать Dispatchers.IO, поэтому просто будем использовать корутины на Main thread
+    val scope = CoroutineScope(Dispatchers.Main) // Не можем взять LifecycleScope как в активити
+
 
     fun deleteShopItem(shopItem: ShopItem) {
-        deleteShopItemUseCase.deleteShopItem(shopItem)
+        scope.launch {
+            deleteShopItemUseCase.deleteShopItem(shopItem)
+        }
     }
 
     fun changeEnableState(shopItem: ShopItem) {
-        val newItem = shopItem.copy(enabled = !shopItem.enabled)
-        editShopItemUseCase.editShopItem(newItem)
+        scope.launch {
+            val newItem = shopItem.copy(enabled = !shopItem.enabled)
+            editShopItemUseCase.editShopItem(newItem)
+        }
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        scope.cancel()
+    }
 }

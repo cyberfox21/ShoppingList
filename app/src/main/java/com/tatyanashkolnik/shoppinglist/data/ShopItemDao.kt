@@ -13,13 +13,13 @@ interface ShopItemDao {
     fun getShopList(): LiveData<List<ShopItemDbModel>> // переключать поток за нас это делает ROOM
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun addShopItem(shopItemDbModel: ShopItemDbModel)
+    suspend fun addShopItem(shopItemDbModel: ShopItemDbModel)
 
     @Query("DELETE FROM shop_items WHERE id = :id")
-    fun deleteShopItem(id: Int)
+    suspend fun deleteShopItem(id: Int)
 
     @Query("SELECT * FROM shop_items WHERE id = :id LIMIT 1")
-    fun getShopItem(id: Int): ShopItemDbModel
+    suspend fun getShopItem(id: Int): ShopItemDbModel
 
 
 }

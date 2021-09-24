@@ -23,20 +23,18 @@ class ShopListRepositoryImpl(application: Application) : ShopListRepository {
 //    }
 
 
-    override fun getShopItem(shopItemId: Int): ShopItem =
+    override suspend fun getShopItem(shopItemId: Int): ShopItem =
         mapper.mapDbModelToEntity(shopListDao.getShopItem(shopItemId))
 
 
-    override fun addShopItem(shopItem: ShopItem) =
+    override suspend fun addShopItem(shopItem: ShopItem) =
         shopListDao.addShopItem(mapper.mapEntityToDbModel(shopItem))
 
 
-    override fun editShopItem(shopItem: ShopItem) =  //такая же реализация как и в addShopItem потому
+    override suspend fun editShopItem(shopItem: ShopItem) =  //такая же реализация как и в addShopItem потому
         shopListDao.addShopItem(mapper.mapEntityToDbModel(shopItem)) // что при добавлении мы
      // указали onConflict REPLACE поэтому это тоже самое, что и редактирование
 
-    override fun deleteShopItem(shopItem: ShopItem) =
+    override suspend fun deleteShopItem(shopItem: ShopItem) =
         shopListDao.deleteShopItem(shopItem.id)
-
-
 }
