@@ -1,58 +1,40 @@
 package com.tatyanashkolnik.shoppinglist.data
 
+import android.app.Application
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.MediatorLiveData
 import com.tatyanashkolnik.shoppinglist.domain.ShopItem
-import com.tatyanashkolnik.shoppinglist.domain.ShopItem.Companion.UNDEFINED_ID
 import com.tatyanashkolnik.shoppinglist.domain.ShopListRepository
-import kotlin.random.Random
 
-object ShopListRepositoryImpl : ShopListRepository {
+class ShopListRepositoryImpl(application: Application) : ShopListRepository {
 
-    private var autoIncrementedId = 0
+    private val shopListDao = AppDatabase.getInstance(application).shopItemDao()
+    private val mapper = Mapper()
 
-    private val shopListLD = MutableLiveData<List<ShopItem>>()
-    private val shopList = sortedSetOf(
-        comparator = Comparator<ShopItem> { o1, o2 -> (o1.id).compareTo(o2.id)}
-    )
-
-    init {
-        for( i in 0 until 25){
-            val item = ShopItem("Name $i", i, Random.nextBoolean())
-            addShopItem(item)
+    override fun getShopList(): LiveData<List<ShopItem>> =
+        MediatorLiveData<List<ShopItem>>().apply { // служит чтобы перехватывать события лайвдаты
+            addSource(shopListDao.getShopList()) {
+                value = mapper.mapListDbModelToListEntity(it) // преобразуем один тип лайвдаты в другой
+            } // вместо того чтобы отобразить в активити, будет перехватываться здесь при каждом изменении
         }
-    }
+//    Или использовать класс Transformations (под капотом MediatorLiveData)
+//    Transformations.map(shopListDao.getShopList()) {
+//        mapper.mapListDbModelToListEntity(it)
+//    }
 
-    override fun getShopList(): LiveData<List<ShopItem>> {
-        return shopListLD
-    }
 
-    override fun getShopItem(shopItemId: Int): ShopItem? {
-        return shopList.find { it.id == shopItemId }
-    }
+    override suspend fun getShopItem(shopItemId: Int): ShopItem =
+        mapper.mapDbModelToEntity(shopListDao.getShopItem(shopItemId))
 
-    override fun addShopItem(shopItem: ShopItem) {
-        if (shopItem.id == UNDEFINED_ID) {
-            shopItem.id = autoIncrementedId
-            autoIncrementedId++
-        }
-        shopList.add(shopItem)
-        updateList()
-    }
 
-    override fun editShopItem(shopItem: ShopItem) {
-        val oldItem = getShopItem(shopItem.id)
-        shopList.remove(oldItem)
-        addShopItem(shopItem)
-    }
+    override suspend fun addShopItem(shopItem: ShopItem) =
+        shopListDao.addShopItem(mapper.mapEntityToDbModel(shopItem))
 
-    override fun deleteShopItem(shopItem: ShopItem) {
-        shopList.remove(shopItem)
-        updateList()
-    }
 
-    private fun updateList(){
-        shopListLD.value = shopList.toList()
-    }
+    override suspend fun editShopItem(shopItem: ShopItem) =  //такая же реализация как и в addShopItem потому
+        shopListDao.addShopItem(mapper.mapEntityToDbModel(shopItem)) // что при добавлении мы
+     // указали onConflict REPLACE поэтому это тоже самое, что и редактирование
 
+    override suspend fun deleteShopItem(shopItem: ShopItem) =
+        shopListDao.deleteShopItem(shopItem.id)
 }

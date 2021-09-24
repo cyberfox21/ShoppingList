@@ -1,17 +1,23 @@
 package com.tatyanashkolnik.shoppinglist.presentation
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.tatyanashkolnik.shoppinglist.data.ShopListRepositoryImpl
 import com.tatyanashkolnik.shoppinglist.domain.AddShopItemUseCase
 import com.tatyanashkolnik.shoppinglist.domain.EditShopItemUseCase
 import com.tatyanashkolnik.shoppinglist.domain.GetShopItemUseCase
 import com.tatyanashkolnik.shoppinglist.domain.ShopItem
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
-class ShopItemViewModel : ViewModel() {
+class ShopItemViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val repository = ShopListRepositoryImpl
+    private val repository = ShopListRepositoryImpl(application)
 
     private val editShopItemUseCase = EditShopItemUseCase(repository)
     private val addShopItemUseCase = AddShopItemUseCase(repository)
@@ -40,9 +46,17 @@ class ShopItemViewModel : ViewModel() {
     val shopItem: LiveData<ShopItem>
         get() = _shopItem
 
+    // Так как в Room реализованы suspend функции, которые не блокиуют поток, нам нет смысла
+    // во ViewModel использовать Dispatchers.IO, поэтому просто будем использовать корутины на Main thread
+//    val scope = CoroutineScope(Dispatchers.Main)
+
+    // теперь используем viewModelScope он работает в Main thread и сам очищается в onCleared()
+
     fun getShopItem(shopItemId: Int) {
-        val item = getShopItemUseCase.getShopItem(shopItemId)
-        _shopItem.value = item!!
+        viewModelScope.launch {
+            val item = getShopItemUseCase.getShopItem(shopItemId)
+            _shopItem.value = item!!
+        }
     }
 
     fun addShopItem(inputName: String?, inputCount: String?) {
@@ -50,9 +64,11 @@ class ShopItemViewModel : ViewModel() {
         val count = parseCount(inputCount)
         val fieldsValid = validateInput(name, count)
         if (fieldsValid) {
-            val shopItem = ShopItem(name, count, true)
-            addShopItemUseCase.addShopItem(shopItem)
-            finishWork()
+            viewModelScope.launch {
+                val shopItem = ShopItem(name, count, true)
+                addShopItemUseCase.addShopItem(shopItem)
+                finishWork()
+            }
         }
     }
 
@@ -62,10 +78,12 @@ class ShopItemViewModel : ViewModel() {
         val fieldsValid = validateInput(name, count)
         if (fieldsValid) {
             _shopItem.value?.let {
-                val item = it.copy(name = name, count = count) // копируем старый объект,
-                // чтобы сохранить его id и состояние enabled, но изменяем отредактированные поля
-                editShopItemUseCase.editShopItem(item)
-                finishWork()
+                viewModelScope.launch {
+                    val item = it.copy(name = name, count = count) // копируем старый объект,
+                    // чтобы сохранить его id и состояние enabled, но изменяем отредактированные поля
+                    editShopItemUseCase.editShopItem(item)
+                    finishWork()
+                }
             }
         }
     }
@@ -108,4 +126,11 @@ class ShopItemViewModel : ViewModel() {
         _shouldCloseScreen.value = Unit // сам объект, который прилетит в observer,
         // в активити никак использоваться не будет
     }
+
+    // теперь используем viewModelScope он работает в Main thread и сам очищается в onCleared()
+
+//    override fun onCleared() { // функция, которая вызывается при смерти ViewModel
+//        super.onCleared()
+//        scope.cancel() // отменяем scope
+//    }
 }
