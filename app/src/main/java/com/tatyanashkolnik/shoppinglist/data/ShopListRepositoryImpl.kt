@@ -3,7 +3,6 @@ package com.tatyanashkolnik.shoppinglist.data
 import android.app.Application
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.Transformations
 import com.tatyanashkolnik.shoppinglist.domain.ShopItem
 import com.tatyanashkolnik.shoppinglist.domain.ShopListRepository
 
@@ -15,8 +14,8 @@ class ShopListRepositoryImpl(application: Application) : ShopListRepository {
     override fun getShopList(): LiveData<List<ShopItem>> =
         MediatorLiveData<List<ShopItem>>().apply { // служит чтобы перехватывать события лайвдаты
             addSource(shopListDao.getShopList()) {
-                mapper.mapListDbModelToListEntity(it) // преобразуем один тип лайвдаты в другой
-            }
+                value = mapper.mapListDbModelToListEntity(it) // преобразуем один тип лайвдаты в другой
+            } // вместо того чтобы отобразить в активити, будет перехватываться здесь при каждом изменении
         }
 //    Или использовать класс Transformations (под капотом MediatorLiveData)
 //    Transformations.map(shopListDao.getShopList()) {
